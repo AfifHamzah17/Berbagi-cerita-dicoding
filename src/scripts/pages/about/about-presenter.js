@@ -5,9 +5,6 @@ export default class AddPresenter {
     this.view = view;
   }
 
-  /**
-   * Fetch and show elevation
-   */
   async fetchElevation(lat, lon) {
     this.view.showElevationLoading();
     try {
@@ -15,30 +12,43 @@ export default class AddPresenter {
       this.view.showElevation(alt);
     } catch {
       this.view.showElevation(0);
-    } finally {
-      this.view.hideElevationLoading();
     }
   }
 
-  /**
-   * Submit the story payload
-   */
   async submitStory(payload) {
     this.view.showSubmitting();
-    try {
-      const token = localStorage.getItem('token');
-      const res = token
-        ? await StoryAPI.addStory(payload)
-        : await StoryAPI.addStoryGuest(payload);
-      if (res.error) {
-        this.view.showResult(`Error: ${res.message}`);
-      } else {
-        this.view.showResult('Berhasil ditambahkan!');
-        // redirect home setelah 1 detik
-        setTimeout(() => { location.hash = '/'; }, 1000);
+    const isOnline = navigator.onLine;
+
+    if (isOnline) {
+      try {
+        // Submit dengan timeout 5 detik
+        const res = await Promise.race([
+          this.trySubmit(payload),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000)),
+        ]);
+        if (res.error) {
+          this.view.showResult(`Error: ${res.message}`);
+        } else {
+          this.view.showResult('Cerita berhasil ditambahkan!');
+          setTimeout(() => { location.hash = '/'; }, 1000);
+        }
+      } catch (error) {
+        console.warn('Submit gagal atau timeout, simpan offline:', error);
+        await StoryAPI.addOfflineStory(payload);
+        this.view.showResult('Cerita disimpan secara offline.');
+        location.hash = '/offline';
       }
-    } catch (err) {
-      this.view.showResult('Gagal mengirim cerita. ' + err.message);
+    } else {
+      await StoryAPI.addOfflineStory(payload);
+      this.view.showResult('Cerita disimpan secara offline.');
+      location.hash = '/offline';
     }
+  }
+
+  async trySubmit(payload) {
+    const token = localStorage.getItem('token');
+    return token
+      ? await StoryAPI.addStory(payload)
+      : await StoryAPI.addStoryGuest(payload);
   }
 }

@@ -14,4 +14,13 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  server: {
+    proxy: {
+      '/v1': {
+        target: 'https://story-api.dicoding.dev', // Redirect ke server API
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/v1/, ''),
+      },
+    },
+  },
 });

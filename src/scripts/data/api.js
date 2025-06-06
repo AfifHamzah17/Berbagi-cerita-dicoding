@@ -1,7 +1,9 @@
-// src/scripts/data/api.js
 import CONFIG from '../config.js';
+import { openDB } from 'idb';
 
 const BASE = CONFIG.BASE_URL;
+const DB_NAME = 'story-app-db';
+const STORE_NAME = 'offline-stories';
 
 /**
  * Generic request helper
@@ -13,6 +15,19 @@ async function request(path, options = {}) {
     throw new Error(json.message || `HTTP ${response.status}`);
   }
   return json;
+}
+
+/**
+ * IndexedDB helper untuk offline stories
+ */
+async function getDb() {
+  return openDB(DB_NAME, 1, {
+    upgrade(db) {
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+      }
+    },
+  });
 }
 
 export const StoryAPI = {
@@ -55,7 +70,6 @@ export const StoryAPI = {
       headers: { Authorization: `Bearer ${token}` },
     });
   },
-
 
   elevation: async (lat, lon) => {
     const url = `https://api.opentopodata.org/v1/test-dataset?locations=${lat},${lon}`;
@@ -130,9 +144,68 @@ export const StoryAPI = {
       body: JSON.stringify(payload),
     });
   },
-  
+
   // Logout
-   logout: () => {
+  logout: () => {
     localStorage.removeItem('token');
+  },
+
+  // Helper: get token
+  getToken: () => localStorage.getItem('token'),
+
+  /**
+   * === Offline Stories Handling ===
+   */
+
+  async addOfflineStory(storyPayload) {
+    const db = await getDb();
+    await db.add(STORE_NAME, {
+      ...storyPayload,
+      createdAt: new Date().toISOString(),
+      synced: false,
+    });
+    alert('Cerita berhasil disimpan offline!');
+  },
+
+  async getOfflineStories() {
+    const db = await getDb();
+    return db.getAll(STORE_NAME);
+  },
+
+  async deleteOfflineStory(id) {
+    const db = await getDb();
+    return db.delete(STORE_NAME, id);
+    alert('Cerita offline berhasil dihapus!');
+  },
+
+  async syncOfflineStories() {
+    const db = await getDb();
+    const allStories = await db.getAll(STORE_NAME);
+    for (const story of allStories) {
+      if (!story.synced) {
+        try {
+          // Submit ke server
+          const form = new FormData();
+          form.append('description', story.description);
+          form.append('photo', story.photo);
+          if (story.lat != null && story.lon != null) {
+            form.append('lat', story.lat);
+            form.append('lon', story.lon);
+          }
+          const token = localStorage.getItem('token') || '';
+          await request('/stories', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: form,
+          });
+          // Kalau berhasil, hapus dari indexedDB
+          await db.delete(STORE_NAME, story.id);
+          console.log(`Cerita offline id=${story.id} berhasil disinkronisasi`);
+        } catch (error) {
+          console.error('Gagal sinkronisasi cerita offline:', error);
+          // Jika gagal, biarkan tetap ada di IndexedDB untuk dicoba lain waktu
+        }
+      }
+    }
   },
 };

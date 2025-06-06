@@ -12,6 +12,9 @@ import { StoryAPI } from './data/api.js';
 // (Opsional) hanya jika pakai vite-plugin-ssr
 import { reload } from 'vite-plugin-ssr/client/router';
 
+//kebutuhan test
+import { IdbHelper } from '../scripts/utils/idb.js'
+
 let app; // <-- pindahkan ke sini supaya bisa diakses oleh helper
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -103,3 +106,32 @@ function bindLogout() {
     window.location.hash = '/login';
   });
 }
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/service-worker.js') // pastikan path-nya sesuai file sw.js
+      .then((reg) => {
+        console.log('Service worker terdaftar:', reg);
+      })
+      .catch((err) => {
+        console.error('SW registration failed:', err);
+      });
+  });
+}
+
+// Buat fungsi test dan pasang ke window supaya bisa dipanggil dari console
+window.testAddStory = async () => {
+  await IdbHelper.putStory({
+    id: 'test-' + Date.now(),
+    name: 'User Test',
+    description: 'Ini cerita test',
+  });
+  const allStories = await IdbHelper.getAllStories();
+  console.log(allStories);
+};
+
+window.addEventListener('online', async () => {
+  console.log('Online kembali, sinkronisasi cerita offline...');
+  await StoryAPI.syncOfflineStories();
+});

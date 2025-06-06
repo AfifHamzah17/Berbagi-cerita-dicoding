@@ -354,3 +354,180 @@ main {
 .story-card small {
   color: #777;
 }
+
+/* Tombol untuk menghapus cerita dari daftar like */
+.btn-remove-like {
+  background-color: #e57373; /* Merah muda */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 1em;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin-top: 10px;
+}
+
+.btn-remove-like:hover {
+  background-color: #d32f2f; /* Merah lebih gelap saat hover */
+  transform: scale(1.05); /* Sedikit membesar saat hover */
+}
+
+.btn-remove-like:active {
+  background-color: #b71c1c; /* Merah lebih gelap saat ditekan */
+  transform: scale(1); /* Tidak membesar lagi saat ditekan */
+}
+
+/* Tampilan loading */
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Layout grid untuk daftar cerita */
+.story-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Grid otomatis, tiap item min 280px */
+  gap: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+/* Gaya untuk kartu cerita */
+.story-card {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  padding: 15px;
+}
+
+.story-card:hover {
+  transform: translateY(-10px); /* Efek hover untuk sedikit terangkat */
+}
+
+/* Gambar cerita */
+.story-image-container {
+  height: 180px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+}
+
+.story-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Judul cerita */
+.story-card h2 {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin: 10px 0;
+  color: #333;
+}
+
+/* Deskripsi cerita */
+.story-card p {
+  font-size: 0.9em;
+  color: #555;
+  margin: 10px 0;
+}
+
+/* Tombol Kembali */
+#btn-back {
+  background-color: #3498db;  /* Biru */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1em;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  display: inline-block;
+  margin-top: 20px;
+}
+
+#btn-back:hover {
+  background-color: #2980b9; /* Biru gelap saat hover */
+  transform: scale(1.05); /* Sedikit membesar saat hover */
+}
+
+#btn-back:active {
+  background-color: #1c6f99; /* Biru lebih gelap saat ditekan */
+  transform: scale(1); /* Tidak membesar lagi saat ditekan */
+}
+
+/* Tombol Suka Cerita */
+#btn-like {
+  background-color: #2ecc71;  /* Hijau Cerah (Suka Cerita) */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1em;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  display: inline-block;
+  margin-top: 20px;
+}
+
+#btn-like:hover {
+  background-color: #27ae60; /* Hijau lebih gelap saat hover */
+  transform: scale(1.05); /* Sedikit membesar saat hover */
+}
+
+#btn-like:active {
+  background-color: #1e8449; /* Hijau lebih gelap saat ditekan */
+  transform: scale(1); /* Tidak membesar lagi saat ditekan */
+}
+
+/* Loading Spinner */
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Detail Content Section */
+#detail-content {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+#detail-content h1 {
+  font-size: 1.5em;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+#detail-content p {
+  font-size: 1em;
+  color: #555;
+}

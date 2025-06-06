@@ -1,4 +1,3 @@
-// src/scripts/pages/about/about-page.js
 import AddPresenter from './about-presenter.js';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -43,12 +42,10 @@ export default class AddPage {
   }
 
   async afterRender() {
-    // Inisialisasi peta
     const map = L.map('map').setView([0, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     let marker;
 
-    // Helper untuk matikan kamera
     const stopCamera = () => {
       if (this.stream) {
         this.stream.getTracks().forEach((t) => t.stop());
@@ -58,7 +55,6 @@ export default class AddPage {
       document.getElementById('photo').required = true;
     };
 
-    // Saat klik peta, pasang marker + minta presenter fetchElevation
     map.on('click', ({ latlng }) => {
       const { lat, lng } = latlng;
       document.getElementById('lat').value = lat;
@@ -66,11 +62,9 @@ export default class AddPage {
       if (marker) marker.remove();
       marker = L.marker(latlng).addTo(map);
 
-      // Delegasi ke Presenter
       this.presenter.fetchElevation(lat, lng);
     });
 
-    // Kamera & file elements
     const useCameraBtn    = document.getElementById('use-camera-button');
     const stopCameraBtn   = document.getElementById('stop-camera-button');
     const captureBtn      = document.getElementById('capture-button');
@@ -78,7 +72,6 @@ export default class AddPage {
     const video           = document.getElementById('video');
     const photoInput      = document.getElementById('photo');
 
-    // Tombol gunakan kamera
     useCameraBtn.addEventListener('click', async () => {
       if (!this.stream) {
         try {
@@ -92,7 +85,6 @@ export default class AddPage {
       photoInput.required = false;
     });
 
-    // Tombol ambil foto
     captureBtn.addEventListener('click', () => {
       const canvas = document.createElement('canvas');
       canvas.width  = video.videoWidth;
@@ -107,25 +99,24 @@ export default class AddPage {
       stopCamera();
     });
 
-    // Tombol matikan kamera
     stopCameraBtn.addEventListener('click', stopCamera);
     window.addEventListener('hashchange', stopCamera);
 
-    // Submit → ke Presenter
-    document.getElementById('add-form').addEventListener('submit', (e) => {
+    document.getElementById('add-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       stopCamera();
+
       const payload = {
         description: document.getElementById('desc').value,
         photo:       photoInput.files[0],
         lat:         document.getElementById('lat').value,
         lon:         document.getElementById('lon').value,
       };
-      this.presenter.submitStory(payload);
+
+      await this.presenter.submitStory(payload);
     });
   }
 
-  // Dipanggil Presenter:
   showElevationLoading() {
     document.getElementById('alt').value = 'Memuat…';
   }

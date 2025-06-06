@@ -1,5 +1,6 @@
 // src/scripts/pages/login/login-presenter.js
 import { StoryAPI } from '../../data/api.js';
+import { subscribeToPush } from '../../utils/push.js';
 
 export default class LoginPresenter {
   constructor({ view }) {
@@ -15,6 +16,7 @@ export default class LoginPresenter {
       } else {
         // sukses
         this.view.loginSuccess();
+        await subscribeToPush();
       }
     } catch (err) {
       this.view.showError('Login gagal. ' + err.message);
